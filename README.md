@@ -52,14 +52,14 @@ grid:
 ```
 
 It is a [YAML](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html) file, with the necessary structure:
-- layout: this keyword marks the start of the card layout. Every object inside of it is a piece of the design. Every piece has a:
+- **layout**: this keyword marks the start of the card layout. Every object inside of it is a piece of the design. Every piece has a:
   - name: the name under which it will be locared at the cards file (see more below)
   - type: wheter it's an image or a text
   - start and end: where in the design it is located (see grid details below)
   - level: things often go atop of each other. Write here the order the elements will be rendered. For example: 0 is the lowest level (for the background) and will be rendered first, then levels 1-beyond will be pasted on top of it. This is not really fixed, you can write any number, there can be however many levels you want.
   - default: if this is something in the design that is present in every card, you can just set the value here and not bother writing it in the cards file.
-  size: it can be a string or a list with the card dimensions in milimiters (mm), inches (in), or pixels (px).
-  grid: this is an important element and where the design happens. Basically, the number of squares you will need to divide the card to replicate your design.
+- **size**: it can be the name of one of the presets defined in `presets.yaml`, like 'poker', 'mini' or 'tarot', or a list with the card dimensions in milimiters (mm), inches (in), or pixels (px).
+- **grid**: this is an important element and where the design happens. Basically, the number of squares you will need to divide the card to replicate your design.
 
 ## The Grid
 
