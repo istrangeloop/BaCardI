@@ -1,0 +1,19 @@
+poker:
+  width: 63
+  height: 88
+  unit: mm
+
+bridge:
+  width: 56
+  height: 88
+  unit: mm
+
+tarot:
+  width: 70
+  height: 121
+  unit: mm
+
+mini:
+  width: 44.45
+  height: 63.5
+  unit: mm
