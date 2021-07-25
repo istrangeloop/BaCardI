@@ -1,18 +1,19 @@
-from PIL import Image, ImageDraw, ImageFont
-import sys
+import os
 import string
-from math import ceil
 import yaml
+from PIL import Image, ImageDraw, ImageFont
+from math import ceil
 
-PRESET_FILE = "obj/presets.yaml"
-CONFIG_FILE = "../testconfig.yaml"
-CARDS_FILE = "../testcards.yaml"
+
+PRESET_FILE = os.path.join("obj", "presets.yaml")
 
 class Bacardi():
 
-    def __init__(self, CONFIG_FILE, CARDS_FILE, PRESET_FILE="obj/presets.yaml", IMAGE_DIR = '../'):
+    def __init__(self, CONFIG_FILE, CARDS_FILE, IMAGE_DIR='images', OUTPUT_DIR='out', PRESET_FILE=PRESET_FILE):
         self.dpi = 300
         self.img_dir = IMAGE_DIR
+        self.out_dir = OUTPUT_DIR
+        import pdb; pdb.set_trace()
         self.load_presets(PRESET_FILE)
         self.load_config(CONFIG_FILE)
         self.load_cards(CARDS_FILE)
@@ -60,7 +61,7 @@ class Bacardi():
         if(unit == 'px'):
             self.width = width
             self.heigth = heigth
-        elif(unit == 'in'):
+        elif(unit == 'in' or unit == 'mm'):
             self.width = ceil(self.dpi * width)
             self.heigth = ceil(self.dpi * heigth)
             if(unit == 'mm'):
@@ -87,16 +88,14 @@ class Bacardi():
         column = column.upper()
         
         # if len(column > 1):
-        ## TODO mais de 26 colunas
+        ## TODO: if there are more than A-Z columns
         
         loc_col = (ord(column) - 65) * width_square
         loc_row = (row-1) * heigth_square 
         if(end == True):
             loc_col += width_square
             loc_row += heigth_square
-        # if(loc_col < 0 or loc_row < 0):
-        #     raise exception("Use only upper case letters and numbers as index")
-        ## TODO
+        ## TODO: except if end < start
         return ceil(loc_col), ceil(loc_row)
 
     def get_size_from_squares(self, start, end):
@@ -119,7 +118,7 @@ class Bacardi():
             # Value can be null
             if(value != None):
                 if(part_conf["type"] == "image"):
-                    img_el = Image.open(self.img_dir + value)
+                    img_el = Image.open(os.path.join(self.img_dir, value))
                     img_el = img_el.resize(self.get_size_from_squares(part_conf["start"], part_conf["end"]))
                     
                     # transparency mask can be in either file
@@ -140,62 +139,25 @@ class Bacardi():
                         scale = part_conf["scale"]
                     else:
                         scale = 1
-                    fnt = ImageFont.truetype("obj/Font/arial.ttf", size=ceil(self.width/self.grid_width * scale))
+                    fnt = ImageFont.truetype(os.path.join("obj", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
                     text.multiline_text((self.square_to_pixels(part_conf["start"])), value, font=fnt, fill=(0, 0, 0))
 
         return card
     
-    def save_card(self, card, title, formt):
-        card.save(title + formt)
-
     def run(self):
-
         count = 0
         for obj in self.cards:
             count += 1
             card = self.render(obj)
-            self.save_card(card, "card_" + str(count), ".png")
+            card.save(os.path.join(self.out_dir, "card_" + str(count) +".png"))
 
 
-b = Bacardi(CONFIG_FILE, CARDS_FILE)
+cff = input("enter the path of the configuration file: ")
+cdf = input("enter the path of the cards file: ")
+imd = input("enter the path of the directory with the images: ")
+ouf = input("enter the path of the output directory: ")
+
+
+b = Bacardi(cff, cdf, IMAGE_DIR=imd, OUTPUT_DIR=ouf)
 b.run()
 
-"""
-
-        if(isinstance(obj["start"], str)):
-            itert = [card for card in string.ascii_uppercase]
-        else:
-            try:
-                itert = [str(card).zfill(obj["fill"]) for card in range(obj["start"], obj["end"] +1)]
-            except:
-                itert = [str(card) for card in range(obj["start"], obj["end"] +1 )]
-
-        for card in itert:
-
-            background = Image.new('RGBA', (obj["width"], obj["heigth"]), (255,255,255,255))
-            idraw = ImageDraw.Draw(background)
-            
-            code = expansion + obj["prefix"] + card
-
-            #Creating an instance of qrcode
-            qr = qrcode.QRCode(
-                    version=1,
-                    box_size=10,
-                    border=5)
-            qr.add_data(code)
-            qr.make(fit=True)
-            img = qr.make_image(fill='black', back_color='white')
-
-            background.paste(img, (obj["width"] - 310, obj["heigth"] - 310))
-
-            try:
-                text = obj["text"][int(card)-1]
-            except:
-                text = card
-
-            font = ImageFont.truetype("Font/BebasNeue-Regular.ttf", size=158)
-            idraw.text((30, 10), text, (0,0,0), font=font)
-
-            title = code + '.png'
-            background.save(title)
-"""
