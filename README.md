@@ -63,6 +63,12 @@ It is a [YAML](https://docs.ansible.com/ansible/latest/reference_appendices/YAML
 
 ## The Grid
 
+A grid is used to position the elements in the canvas. You define the size of the grid you need, and place each element accordingly, like in a chessboard, column names are letters of the alphabet and row names are numbers.
+
+![Grid.png](https://github.com/istrangeloop/BaCardI/blob/main/grid.png)
+
+Then you'll just need to write the top left square your element occupies at the "start" parameter in your configuration yaml file and the bottom right square at the "end" parameter. 
+
 ## The Cards File
 
 This is the file in which you will add and modify your cards one by one. It looks like this:
@@ -86,3 +92,5 @@ This is the file in which you will add and modify your cards one by one. It look
 You can see it is really simple. It uses the names we have defined above and sets the value for them in each card. Any of the values anywhere can also be empty if you write the keyword Null.
 
 The result:
+
+![cards.png](https://github.com/istrangeloop/BaCardI/blob/main/cardstest-0.png)
