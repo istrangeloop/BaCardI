@@ -65,8 +65,8 @@ class Bacardi():
             self.width = ceil(self.dpi * width)
             self.heigth = ceil(self.dpi * heigth)
             if(unit == 'mm'):
-                self.width = ceil(width/25.4)
-                self.heigth = ceil(heigth/25.4)
+                self.width = ceil(self.width/25.4)
+                self.heigth = ceil(self.heigth/25.4)
         else:
             print("unknown unit: ", unit)
 
@@ -151,13 +151,16 @@ class Bacardi():
             card = self.render(obj)
             card.save(os.path.join(self.out_dir, "card_" + str(count) +".png"))
 
-
+'''
 cff = input("enter the path of the configuration file: ")
 cdf = input("enter the path of the cards file: ")
 imd = input("enter the path of the directory with the images: ")
 ouf = input("enter the path of the output directory: ")
-
-
+'''
+cff = "images/testconfig.yaml"
+cdf = "images/testcards.yaml"
+imd = "images"
+ouf = "out"
 b = Bacardi(cff, cdf, IMAGE_DIR=imd, OUTPUT_DIR=ouf)
 b.run()
 
