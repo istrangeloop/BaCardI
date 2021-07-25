@@ -3,7 +3,7 @@ Basic Card Imagemaker
 
 This is a python script that generates card decks for board game prototypes from simple YAML descriptions. Contrary to other projects, it does not try to be a image editor or a spreadsheed editor, this is WYSIWYG.
 
-## How To Use IT
+## How To Use It
 
 you'll need two files, one with the card layout and one with all the card descriptions. The card layout looks like this:
 
@@ -85,3 +85,4 @@ This is the file in which you will add and modify your cards one by one. It look
 ```
 You can see it is really simple. It uses the names we have defined above and sets the value for them in each card. Any of the values anywhere can also be empty if you write the keyword Null.
 
+The result:
