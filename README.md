@@ -63,7 +63,7 @@ It is a [YAML](https://docs.ansible.com/ansible/latest/reference_appendices/YAML
 
 ## The Grid
 
-A grid is used to position the elements in the canvas. You define the size of the grid you need, and place each element accordingly, like in a chessboard, column names are letters of the alphabet and row names are numbers.
+A grid is used to position the elements in the canvas. You define the size of the grid you needin the config, for example, the grid below is width: 9 and heigth: 11, and place each element accordingly, like in a chessboard, column names are letters of the alphabet and row names are numbers.
 
 ![Grid.png](https://github.com/istrangeloop/BaCardI/blob/main/grid.png)
 
