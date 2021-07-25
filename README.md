@@ -89,7 +89,7 @@ This is the file in which you will add and modify your cards one by one. It look
   Ilustra: Slytherin.png
   Description: A casa dos Ardilosos
 ```
-You can see it is really simple. It uses the names we have defined above and sets the value for them in each card. Any of the values anywhere can also be empty if you write the keyword Null.
+You can see it is really simple. It uses the names defined in the configuration file above and sets the value for them in each card. Any of the values anywhere can also be empty if you write the keyword Null. Values that were set as default in the config file will be overrided if something else is set instead under the corresponding keyword.
 
 The result:
 
