@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from math import ceil
 
 
-PRESET_FILE = os.path.join("obj", "presets.yaml")
+PRESET_FILE = os.path.join("util", "presets.yaml")
 
 class Bacardi():
 
@@ -13,7 +13,6 @@ class Bacardi():
         self.dpi = 300
         self.img_dir = IMAGE_DIR
         self.out_dir = OUTPUT_DIR
-        import pdb; pdb.set_trace()
         self.load_presets(PRESET_FILE)
         self.load_config(CONFIG_FILE)
         self.load_cards(CARDS_FILE)
@@ -113,10 +112,11 @@ class Bacardi():
             else:
                 print("there must be a value or default for ", part_conf["name"])
             
-            print("rendering: ", value)
-            
             # Value can be null
             if(value != None):
+                
+                print("rendering: ", value)
+                
                 if(part_conf["type"] == "image"):
                     img_el = Image.open(os.path.join(self.img_dir, value))
                     img_el = img_el.resize(self.get_size_from_squares(part_conf["start"], part_conf["end"]))
@@ -139,7 +139,7 @@ class Bacardi():
                         scale = part_conf["scale"]
                     else:
                         scale = 1
-                    fnt = ImageFont.truetype(os.path.join("obj", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
+                    fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
                     text.multiline_text((self.square_to_pixels(part_conf["start"])), value, font=fnt, fill=(0, 0, 0))
 
         return card
@@ -151,16 +151,20 @@ class Bacardi():
             card = self.render(obj)
             card.save(os.path.join(self.out_dir, "card_" + str(count) +".png"))
 
-'''
-cff = input("enter the path of the configuration file: ")
-cdf = input("enter the path of the cards file: ")
-imd = input("enter the path of the directory with the images: ")
-ouf = input("enter the path of the output directory: ")
-'''
-cff = "images/testconfig.yaml"
-cdf = "images/testcards.yaml"
-imd = "images"
-ouf = "out"
-b = Bacardi(cff, cdf, IMAGE_DIR=imd, OUTPUT_DIR=ouf)
-b.run()
+
+if __name__ == '__main__':
+    
+    cff = "config.yaml"
+    cdf = "cards.yaml"
+    imd = "images"
+    ouf = "out"
+    import pdb; pdb.set_trace()
+    
+    if(not os.path.isfile(cff) or not os.path.isfile(cdf) or not os.path.isdir(imd)):
+        cff = input("enter the path of the configuration file: ")
+        cdf = input("enter the path of the cards file: ")
+        imd = input("enter the path of the directory with the images: ")
+
+    b = Bacardi(cff, cdf, IMAGE_DIR=imd, OUTPUT_DIR=ouf)
+    b.run()
 
