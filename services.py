@@ -2,6 +2,7 @@ import os
 import fastapi
 import bacardi
 import shutil
+import io
 from zipfile import ZipFile
 
 IMAGE_DIR = os.path.join(".", "tmp", "images")
@@ -16,18 +17,18 @@ def setup_dirs():
 def destroy_dirs():
     if os.path.exists(IMAGE_DIR):
         shutil.rmtree(IMAGE_DIR)
-    #if os.path.exists(OUTPUT_DIR):
-    #    shutil.rmtree(OUTPUT_DIR)
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
 
-def is_zip(filename: str) -> bool:
+def is_valid(filename: str) -> bool:
     valid_extensions = (".zip", ".rar", ".yaml")
     return filename.endswith(valid_extensions)
 
-def upload_zip(compressed: fastapi.UploadFile):
-    if is_zip(compressed.filename):
-        with open(f"{IMAGE_DIR}/{compressed.filename}", "wb+") as zip_upload:
-            zip_upload.write(compressed.file.read())
-        return str(IMAGE_DIR) +"/" + str(compressed.filename)
+def upload(obj: fastapi.UploadFile):
+    if is_valid(obj.filename):
+        with open(f"{IMAGE_DIR}/{obj.filename}", "wb+") as f:
+            f.write(obj.file.read())
+        return str(IMAGE_DIR) +"/" + str(obj.filename)
     return None
 
 def extract_images(file_name: str) -> None:
@@ -50,17 +51,17 @@ def get_all_file_paths():
 
     return file_paths  
 
-def zip_deck(deck_name):
+def zip_deck():
          
     file_paths = get_all_file_paths()
 
     for file_name in file_paths:
         print(file_name)
-
-    with ZipFile(f"{OUTPUT_DIR}/{deck_name}", 'w') as zip:
+    zip_io = io.BytesIO()
+    with ZipFile(zip_io, 'w') as zip:
         for file in file_paths:
             zip.write(file)
 
     print('All files zipped successfully!')
-    return f"{OUTPUT_DIR}/{deck_name}"     
+    return zip_io    
   
