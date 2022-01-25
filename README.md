@@ -7,7 +7,7 @@ You can download it and run `bacardi.py` from your command line, start the [Fast
 
 For the CLI you can run `python bacardi.py`. It expects files named "config.yaml", "cards.yamls" and a directory named "images" with the project images to be present at the root, if you do not have them you will be prompted to provide the necessary files.
 
-For the fastAPI just have run `uvicorn fastapi/main:app --reload` and navigate to `localhost:8000/docs`
+For the fastAPI just have run `uvicorn main:app --reload` and navigate to `localhost:8000/docs`
 
 ## How To Use It
 
