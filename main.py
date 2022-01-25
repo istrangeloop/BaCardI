@@ -14,7 +14,7 @@ def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...), im
     services.upload(images)
     services.process_preview(layout)
     card = responses.FileResponse(f"{services.OUTPUT_DIR}/card_preview.png")
-    # background_tasks.add_task(services.destroy_dirs)
+    background_tasks.add_task(services.destroy_dirs)
     return card
 
 @app.post("/create")

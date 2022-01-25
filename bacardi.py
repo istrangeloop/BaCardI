@@ -123,7 +123,6 @@ class Bacardi():
         
         part = self.get_next_piece_of_layout()
         for part_conf in part:
-            import pdb; pdb.set_trace()
             if(part_conf["type"] == "image"):
                 # create image with stripes to show location
                 img_el = Image.new('RGBA', self.get_size_from_squares(part_conf["start"], part_conf["end"]), (245,245,245,245))
