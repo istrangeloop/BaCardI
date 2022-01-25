@@ -65,9 +65,56 @@ It is a [YAML](https://docs.ansible.com/ansible/latest/reference_appendices/YAML
   - start and end: where in the design it is located (see grid details below)
   - level: things often go atop of each other. Write here the order the elements will be rendered. For example: 0 is the lowest level (for the background) and will be rendered first, then levels 1-beyond will be pasted on top of it. This is not really fixed, you can write any number, there can be however many levels you want.
   - scale: for text, it changes the size of the font, a value of scale = 1 equals one whole square per default. Then you do the math.
-  - default: if this is something in the design that is present in every card, you can just set the value here and not bother writing it in the cards file.
+  - default: if this is something in the design that is present in every card, you can just set the value here and not bother writing it in the cards file. If there is a value in the cards file, it will overwrite this default.
 - **size**: it can be the name of one of the presets defined in `presets.yaml`, like 'poker', 'mini' or 'tarot', or a list with the card dimensions in milimiters (mm), inches (in), or pixels (px).
 - **grid**: this is an important element and where the design happens. Basically, the number of squares you will need to divide the card to replicate your design.
+
+### Example layout:
+
+```
+layout:
+  - name: Titulo
+    type: text
+    start: C11
+    end: G9
+    level: 3
+
+  - name: Ilustra
+    type: image
+    start: B2
+    end: H9
+    level: 1
+
+  - name: TextBox
+    type: image
+    start: B10
+    end: H14
+    level: 1
+    default: tbt.png
+
+  - name: Description
+    type: text
+    start: D12
+    scale: 0.6
+    end: G13
+    level: 2
+
+  - name: Fundo
+    type: image
+    start: A1
+    end: I15
+    level: 0
+    default: bg.jpg
+
+size: 
+  width: 600
+  heigth: 1000
+  unit: px
+
+grid:
+  width: 9
+  heigth: 15
+```
 
 ## The Grid
 

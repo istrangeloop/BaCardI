@@ -21,7 +21,7 @@ def destroy_dirs():
         shutil.rmtree(OUTPUT_DIR)
 
 def is_valid(filename: str) -> bool:
-    valid_extensions = (".zip", ".rar", ".yaml")
+    valid_extensions = (".zip", ".rar", ".yaml", ".png")
     return filename.endswith(valid_extensions)
 
 def upload(obj: fastapi.UploadFile):
@@ -38,6 +38,10 @@ def extract_images(file_name: str) -> None:
 
 def process(layout: str, cards: str):
     b = bacardi.Bacardi(layout, cards, IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
+    b.run()
+
+def process_preview(layout: str):
+    b = bacardi.Bacardi(layout, None, IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
     b.run()
 
 def get_all_file_paths():

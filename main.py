@@ -1,8 +1,7 @@
 # created with help of https://www.youtube.com/watch?v=0cVybZ_loWw
 import fastapi
-from fastapi import responses
+from fastapi import Form, responses, BackgroundTasks
 import services
-
 app = fastapi.FastAPI()
 
 @app.get("/")
@@ -10,13 +9,17 @@ def root():
     return {"message": "Hi :) you are using the BaCardI API version 1.0 created by Ingrid Spangler"}
 
 @app.post("/layout")
-def create_layout(l_file: fastapi.UploadFile = fastapi.File(...)):
-    content = l_file.file.read()
-    pass
-        
+def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...), images: fastapi.UploadFile = fastapi.File(...)):
+    services.setup_dirs()
+    services.upload(images)
+    services.process_preview(layout)
+    card = responses.FileResponse(f"{services.OUTPUT_DIR}/card_preview.png")
+    # background_tasks.add_task(services.destroy_dirs)
+    return card
 
 @app.post("/create")
-def create_cards(image: fastapi.UploadFile = fastapi.File(...), 
+def create_cards(background_tasks: BackgroundTasks,
+                image: fastapi.UploadFile = fastapi.File(...), 
                 layout: fastapi.UploadFile = fastapi.File(...), 
                 cardinfo: fastapi.UploadFile = fastapi.File(...)):
     # TODO: create unique name for each temporary folder then
@@ -31,7 +34,7 @@ def create_cards(image: fastapi.UploadFile = fastapi.File(...),
     services.extract_images(path)
     services.process(l_path, c_path)
     deck = services.zip_deck()
-    services.destroy_dirs()
+    background_tasks.add_task(services.destroy_dirs)
     return responses.Response(deck.getvalue(), media_type="application/x-zip-compressed", headers={
         'Content-Disposition': f'attachment;filename=generated_deck.zip'
     })

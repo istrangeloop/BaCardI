@@ -1,11 +1,14 @@
 import os
 import string
 import yaml
+import json
 from PIL import Image, ImageDraw, ImageFont
 from math import ceil
 
 
 PRESET_FILE = os.path.join("util", "presets.yaml")
+ASSEMBLE = 0
+PREVIEW = 1
 
 class Bacardi():
 
@@ -13,6 +16,7 @@ class Bacardi():
         self.dpi = 300
         self.img_dir = IMAGE_DIR
         self.out_dir = OUTPUT_DIR
+        self.mode = ASSEMBLE
         self.load_presets(PRESET_FILE)
         self.load_config(CONFIG_FILE)
         self.load_cards(CARDS_FILE)
@@ -22,50 +26,57 @@ class Bacardi():
         self.presets = yaml.safe_load(pf)
         
     def load_config(self, CONFIG_FILE):
-        pf = open(CONFIG_FILE, 'r')
-        confs = yaml.safe_load(pf)
-
+#        pf = open(CONFIG_FILE, 'r')
+#        confs = yaml.safe_load(pf)
+        confs = json.loads(CONFIG_FILE)
         self.layout = confs['layout']
 
         try:
             self.grid_width = confs['grid']['width']
-            self.grid_heigth = confs['grid']['heigth']
+            self.grid_height = confs['grid']['height']
         except:
             print("please define the card grid.")
         
         if(type(confs['size']) == str):
             if(confs['size'] in self.presets):
                 width = self.presets[confs['size']]['width']
-                heigth = self.presets[confs['size']]['heigth']
+                height = self.presets[confs['size']]['height']
                 unit = self.presets[confs['size']]['unit']
-                self.calculate_pixel_size(width, heigth, unit)
+                self.calculate_pixel_size(width, height, unit)
             else:
                 print("unknown preset.")
         elif(type(confs['size']) == dict):
             width = confs['size']['width']
-            heigth = confs['size']['heigth']
+            height = confs['size']['height']
             unit = confs['size']['unit']
-            self.calculate_pixel_size(width, heigth, unit)
+            self.calculate_pixel_size(width, height, unit)
         else:
-            print("parameter 'size' should be the name of a preset or a dict with parameters width, heigth and unit")
-
+            print("parameter 'size' should be the name of a preset or a dict with parameters width, height and unit")
+            return
+        self.width_square = ceil(self.width/self.grid_width)
+        self.height_square = ceil(self.height/self.grid_height)
+        
 
     def load_cards(self, CARDS_FILE):
-        pf = open(CARDS_FILE, 'r')
-        self.cards = yaml.safe_load(pf)
+        if CARDS_FILE == None:
+            self.mode = PREVIEW
+        else:
+            self.cards = CARDS_FILE
+            # pf = open(CARDS_FILE, 'r')
+            # self.cards = yaml.safe_load(pf)
 
-    def calculate_pixel_size(self, width, heigth, unit):
+    def calculate_pixel_size(self, width, height, unit):
         # produces an image with 300 dpi given dimensions and units
         # units can be mm, px or in
         if(unit == 'px'):
             self.width = width
-            self.heigth = heigth
+            self.height = height
         elif(unit == 'in' or unit == 'mm'):
             self.width = ceil(self.dpi * width)
-            self.heigth = ceil(self.dpi * heigth)
+            self.height = ceil(self.dpi * height)
             if(unit == 'mm'):
                 self.width = ceil(self.width/25.4)
-                self.heigth = ceil(self.heigth/25.4)
+                self.height = ceil(self.height/25.4)
         else:
             print("unknown unit: ", unit)
 
@@ -78,9 +89,7 @@ class Bacardi():
 
     def square_to_pixels(self, square, end=False):
         #calculate where in pixels the grid square starts or ends
-        width_square = ceil(self.width/self.grid_width)
-        heigth_square = ceil(self.heigth/self.grid_heigth)
-        
+
         column = ''.join(list(filter(lambda x: x in string.ascii_letters, square)))
         row = ''.join(list(filter(lambda x: x not in string.ascii_letters, square)))
         row = int(row)
@@ -89,19 +98,54 @@ class Bacardi():
         # if len(column > 1):
         ## TODO: if there are more than A-Z columns
         
-        loc_col = (ord(column) - 65) * width_square
-        loc_row = (row-1) * heigth_square 
+        loc_col = (ord(column) - 65) * self.width_square
+        loc_row = (row-1) * self.height_square 
         if(end == True):
-            loc_col += width_square
-            loc_row += heigth_square
+            loc_col += self.width_square
+            loc_row += self.height_square
         ## TODO: except if end < start
         return ceil(loc_col), ceil(loc_row)
 
     def get_size_from_squares(self, start, end):
         return tuple(map(lambda i, j: i - j, self.square_to_pixels(end, True), self.square_to_pixels(start)))
 
+    def render_preview(self):
+
+        card = Image.new('RGBA', (self.width, self.height), (255,255,255,255))
+        grid = ImageDraw.Draw(card)
+        for i in range(0, self.grid_width + 1):
+            for j in range(self.grid_height + 1):
+                grid.line([((i+1) * self.width_square, j * self.height_square),
+                 (i * self.width_square, j * self.height_square), 
+                 (i * self.width_square, j+1 * self.height_square)], fill=128)
+                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=26)
+                grid.multiline_text((i * self.width_square, j * self.height_square), chr(65+i) + str(j+1), fill=(128,128,128), font=fnt)
+        
+        part = self.get_next_piece_of_layout()
+        for part_conf in part:
+            import pdb; pdb.set_trace()
+            if(part_conf["type"] == "image"):
+                # create image with stripes to show location
+                img_el = Image.new('RGBA', self.get_size_from_squares(part_conf["start"], part_conf["end"]), (245,245,245,245))
+                prv_grd = ImageDraw.Draw(img_el)
+                prv_grd.rectangle([(0,0), (img_el.width+3, img_el.height+3)])
+                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * 0.5))
+                prv_grd.multiline_text((0,0), part_conf["name"], fill=(10*part_conf['level'], 10*part_conf['level'], 10*part_conf['level']), font=fnt)
+                card.paste(img_el, self.square_to_pixels(part_conf["start"]))
+            
+            elif(part_conf["type"] == "text"):
+                text = ImageDraw.Draw(card)
+                if("scale" in part_conf):
+                    scale = part_conf["scale"]
+                else:
+                    scale = 1
+                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
+                text.multiline_text((self.square_to_pixels(part_conf["start"])), part_conf["name"], font=fnt, fill=(0, 0, 0))
+
+        return card
+    
     def render(self, obj):
-        card = Image.new('RGBA', (self.width, self.heigth), (255,255,255,255))
+        card = Image.new('RGBA', (self.width, self.height), (255,255,255,255))
         part = self.get_next_piece_of_layout()
         #verify if it exists else use default value
         for part_conf in part:
@@ -143,13 +187,17 @@ class Bacardi():
                     text.multiline_text((self.square_to_pixels(part_conf["start"])), value, font=fnt, fill=(0, 0, 0))
 
         return card
-    
+
     def run(self):
         count = 0
-        for obj in self.cards:
-            count += 1
-            card = self.render(obj)
-            card.save(os.path.join(self.out_dir, "card_" + str(count) +".png"))
+        if(self.mode == PREVIEW):
+            card = self.render_preview()
+            card.save(os.path.join(self.out_dir, "card_preview.png"))
+        else:
+            for obj in self.cards:
+                count += 1
+                card = self.render(obj)
+                card.save(os.path.join(self.out_dir, "card_" + str(count) +".png"))
 
 
 if __name__ == '__main__':
@@ -158,8 +206,7 @@ if __name__ == '__main__':
     cdf = "cards.yaml"
     imd = "images"
     ouf = "out"
-    import pdb; pdb.set_trace()
-    
+
     if(not os.path.isfile(cff) or not os.path.isfile(cdf) or not os.path.isdir(imd)):
         cff = input("enter the path of the configuration file: ")
         cdf = input("enter the path of the cards file: ")
@@ -167,4 +214,3 @@ if __name__ == '__main__':
 
     b = Bacardi(cff, cdf, IMAGE_DIR=imd, OUTPUT_DIR=ouf)
     b.run()
-
