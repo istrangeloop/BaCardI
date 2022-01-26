@@ -1,8 +1,20 @@
 # created with help of https://www.youtube.com/watch?v=0cVybZ_loWw
 import fastapi
 from fastapi import Form, responses, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 import services
+
 app = fastapi.FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():
