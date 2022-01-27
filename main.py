@@ -20,8 +20,12 @@ app.add_middleware(
 def root():
     return {"message": "Hi :) you are using the BaCardI API version 1.0 created by Ingrid Spangler"}
 
+@app.post("/test")
+def test(layout : str)
+    return "seu payload foi" + layout
+
 @app.post("/layout")
-def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...), images: fastapi.UploadFile = fastapi.File(...)):
+def create_layout(background_tasks: BackgroundTasks, layout: str, images: fastapi.UploadFile = fastapi.File(...)):
     services.setup_dirs()
     services.upload(images)
     services.process_preview(layout)
