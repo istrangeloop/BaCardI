@@ -3,7 +3,7 @@ import fastapi
 from fastapi import Form, responses, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import services
-
+from typing import Optional
 app = fastapi.FastAPI()
 
 origins = ["*"]
@@ -21,9 +21,11 @@ def root():
     return {"message": "Hi :) you are using the BaCardI API version 1.0 created by Ingrid Spangler"}
 
 @app.post("/layout")
-def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...), images: fastapi.UploadFile = fastapi.File(...)):
+def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...) , images: Optional[fastapi.UploadFile] = None):
+    print('a')
     services.setup_dirs()
-    services.upload(images)
+    if images != None:
+        services.upload(images)
     services.process_preview(layout)
     card = responses.FileResponse(f"{services.OUTPUT_DIR}/card_preview.png")
     background_tasks.add_task(services.destroy_dirs)

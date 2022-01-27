@@ -118,7 +118,7 @@ class Bacardi():
                 grid.line([((i+1) * self.width_square, j * self.height_square),
                  (i * self.width_square, j * self.height_square), 
                  (i * self.width_square, j+1 * self.height_square)], fill=128)
-                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * 0.5))
+                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * 0.3))
                 grid.multiline_text((i * self.width_square, j * self.height_square), chr(65+i) + str(j+1), fill=(128,128,128), font=fnt)
         
         part = self.get_next_piece_of_layout()
