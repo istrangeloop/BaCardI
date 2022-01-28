@@ -3,10 +3,13 @@ import fastapi
 import bacardi
 import shutil
 import io
+import uuid
+import base64
 from zipfile import ZipFile
 
 IMAGE_DIR = os.path.join(".", "tmp", "images")
 OUTPUT_DIR = os.path.join(".", "tmp", "out")
+
 
 def setup_dirs():
     if not os.path.exists(IMAGE_DIR):
@@ -14,15 +17,25 @@ def setup_dirs():
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
+
 def destroy_dirs():
     if os.path.exists(IMAGE_DIR):
         shutil.rmtree(IMAGE_DIR)
     if os.path.exists(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
 
+
 def is_valid(filename: str) -> bool:
     valid_extensions = (".zip", ".rar", ".yaml", ".png")
     return filename.endswith(valid_extensions)
+
+
+def upload_image(image: bytes):
+    guid = uuid.uuid4()
+    with open(f"{IMAGE_DIR}/{guid}.png", "wb+") as f:
+        f.write(base64.decodebytes(image))
+    return str(IMAGE_DIR) + "/" + str(guid)
+
 
 def upload(obj: fastapi.UploadFile):
     if is_valid(obj.filename):
@@ -31,18 +44,22 @@ def upload(obj: fastapi.UploadFile):
         return str(IMAGE_DIR) +"/" + str(obj.filename)
     return None
 
+
 def extract_images(file_name: str) -> None:
     with ZipFile(file_name, 'r') as zip:
         zip.printdir()
         zip.extractall(path=IMAGE_DIR)
 
+
 def process(layout: str, cards: str):
     b = bacardi.Bacardi(layout, cards, IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
     b.run()
 
+
 def process_preview(layout: str):
     b = bacardi.Bacardi(layout, None, IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
     b.run()
+
 
 def get_all_file_paths():
 
@@ -54,6 +71,7 @@ def get_all_file_paths():
             file_paths.append(filepath)
 
     return file_paths  
+
 
 def zip_deck():
          

@@ -1,9 +1,11 @@
 # created with help of https://www.youtube.com/watch?v=0cVybZ_loWw
 import fastapi
-from fastapi import Form, responses, BackgroundTasks
+from fastapi import Form, responses, BackgroundTasks, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import services
-from typing import Optional
+
+from pydantic import BaseModel
+from typing import Optional, List
 app = fastapi.FastAPI()
 
 origins = ["*"]
@@ -16,11 +18,48 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class Layout(BaseModel):
+    type: str
+    name: str
+    start: int
+    end: int
+    level: int
+    scale: Optional[int]
+    default: Optional[bytes]
+
+
+class Grid(BaseModel):
+    width: int
+    height: int
+
+
+class Size(Grid):
+    unit: str
+
+
+class LayoutRequest(BaseModel):
+    size: Optional[Size] = None
+    grid: Optional[Grid] = None
+    layout: List[Layout] = []
+
+
 @app.get("/")
 def root():
     return {"message": "Hi :) you are using the BaCardI API version 1.0 created by Ingrid Spangler"}
 
-@app.post("/layout")
+
+@app.post("/junk")
+async def test(layout: LayoutRequest):
+    services.setup_dirs()
+    # lista de enderecos das imagens registradas
+    # equivalente a services.upload(images)
+    # porem para N imagens
+    image_list = (services.upload_image(images.default) for images in layout.layout)
+    return image_list
+
+
+@app.post("/deprecated/layout")
 def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...) , images: Optional[fastapi.UploadFile] = None):
     print('a')
     services.setup_dirs()
