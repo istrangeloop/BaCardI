@@ -2,6 +2,7 @@
 import fastapi
 from fastapi import Form, responses, BackgroundTasks, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 import services
 
 from pydantic import BaseModel
@@ -22,10 +23,10 @@ app.add_middleware(
 class Layout(BaseModel):
     type: str
     name: str
-    start: int
-    end: int
+    start: str
+    end: str
     level: int
-    scale: Optional[int]
+    scale: Optional[float]
     default: Optional[bytes]
 
 
@@ -59,13 +60,13 @@ async def test(layout: LayoutRequest):
     return image_list
 
 
-@app.post("/deprecated/layout")
-def create_layout(background_tasks: BackgroundTasks, layout: str = Form(...) , images: Optional[fastapi.UploadFile] = None):
-    print('a')
+@app.post("/layout")
+def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest , images: Optional[fastapi.UploadFile] = None):
     services.setup_dirs()
     if images != None:
         services.upload(images)
-    services.process_preview(layout)
+    json_layout = jsonable_encoder(layout)
+    services.process_preview(json_layout)
     card = responses.FileResponse(f"{services.OUTPUT_DIR}/card_preview.png")
     background_tasks.add_task(services.destroy_dirs)
     return card

@@ -28,7 +28,7 @@ class Bacardi():
     def load_config(self, CONFIG_FILE):
 #        pf = open(CONFIG_FILE, 'r')
 #        confs = yaml.safe_load(pf)
-        confs = json.loads(CONFIG_FILE)
+        confs = CONFIG_FILE
         self.layout = confs['layout']
 
         try:
