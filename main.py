@@ -4,7 +4,7 @@ from fastapi import Form, responses, BackgroundTasks, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 import services
-
+import base64
 from pydantic import BaseModel
 from typing import Optional, List
 app = fastapi.FastAPI()
@@ -61,15 +61,18 @@ async def test(layout: LayoutRequest):
 
 
 @app.post("/layout")
-def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest , images: Optional[fastapi.UploadFile] = None):
+def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest):
     services.setup_dirs()
-    if images != None:
-        services.upload(images)
+    for el in layout.layout:
+        if el.default != None:
+            filename = services.upload_image(el.default)
+            el.default = filename
     json_layout = jsonable_encoder(layout)
     services.process_preview(json_layout)
-    card = responses.FileResponse(f"{services.OUTPUT_DIR}/card_preview.png")
+    card = open(f"{services.OUTPUT_DIR}/card_preview.png", "rb").read()
+    encoded = base64.b64encode(card)
     background_tasks.add_task(services.destroy_dirs)
-    return card
+    return encoded
 
 @app.post("/create")
 def create_cards(background_tasks: BackgroundTasks,

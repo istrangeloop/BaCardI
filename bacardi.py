@@ -124,13 +124,18 @@ class Bacardi():
         part = self.get_next_piece_of_layout()
         for part_conf in part:
             if(part_conf["type"] == "image"):
-                # create image with stripes to show location
-                img_el = Image.new('RGBA', self.get_size_from_squares(part_conf["start"], part_conf["end"]), (245,245,245,245))
-                prv_grd = ImageDraw.Draw(img_el)
-                prv_grd.rectangle([(0,0), (img_el.width+3, img_el.height+3)])
-                fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * 0.5))
-                prv_grd.multiline_text((0,0), part_conf["name"], fill=(10*part_conf['level'], 10*part_conf['level'], 10*part_conf['level']), font=fnt)
-                card.paste(img_el, self.square_to_pixels(part_conf["start"]))
+                if(part_conf["default"] != None):
+                    img_el = Image.open(os.path.join(self.img_dir, part_conf["default"]))
+                    img_el = img_el.resize(self.get_size_from_squares(part_conf["start"], part_conf["end"]))
+                    card.paste(img_el, self.square_to_pixels(part_conf["start"]))
+                else:
+                    # create image with stripes to show location
+                    img_el = Image.new('RGBA', self.get_size_from_squares(part_conf["start"], part_conf["end"]), (245,245,245,245))
+                    prv_grd = ImageDraw.Draw(img_el)
+                    prv_grd.rectangle([(0,0), (img_el.width+3, img_el.height+3)])
+                    fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * 0.5))
+                    prv_grd.multiline_text((0,0), part_conf["name"], fill=(10*part_conf['level'], 10*part_conf['level'], 10*part_conf['level']), font=fnt)
+                    card.paste(img_el, self.square_to_pixels(part_conf["start"]))
             
             elif(part_conf["type"] == "text"):
                 text = ImageDraw.Draw(card)

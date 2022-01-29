@@ -26,7 +26,7 @@ def destroy_dirs():
 
 
 def is_valid(filename: str) -> bool:
-    valid_extensions = (".zip", ".rar", ".yaml", ".png")
+    valid_extensions = (".zip", ".rar", ".yaml", ".png", ".jpg", ".jpeg")
     return filename.endswith(valid_extensions)
 
 
@@ -34,7 +34,7 @@ def upload_image(image: bytes):
     guid = uuid.uuid4()
     with open(f"{IMAGE_DIR}/{guid}.png", "wb+") as f:
         f.write(base64.decodebytes(image))
-    return str(IMAGE_DIR) + "/" + str(guid)
+    return str(guid) + '.png'
 
 
 def upload(obj: fastapi.UploadFile):
