@@ -40,8 +40,9 @@ class Size(Grid):
 
 
 class LayoutRequest(BaseModel):
-    size: Optional[Size] = None
+    size: Optional[Size] or str = None
     grid: Optional[Grid] = None
+    preset: Optional[str] = None
     layout: List[Layout] = []
 
 
@@ -75,10 +76,9 @@ def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest):
     return encoded
 
 @app.post("/create")
-def create_cards(background_tasks: BackgroundTasks,
-                image: fastapi.UploadFile = fastapi.File(...), 
-                layout: fastapi.UploadFile = fastapi.File(...), 
-                cardinfo: fastapi.UploadFile = fastapi.File(...)):
+def create_cards(background_tasks: BackgroundTasks, 
+                layout: LayoutRequest, 
+                cardinfo):
     # TODO: create unique name for each temporary folder then
     # delete them after processing the request
     services.setup_dirs()

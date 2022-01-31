@@ -37,11 +37,12 @@ class Bacardi():
         except:
             print("please define the card grid.")
         
-        if(type(confs['size']) == str):
-            if(confs['size'] in self.presets):
-                width = self.presets[confs['size']]['width']
-                height = self.presets[confs['size']]['height']
-                unit = self.presets[confs['size']]['unit']
+        if('preset' in confs):
+            print(self.presets[confs['preset']])
+            if(confs['preset'] in self.presets):
+                width = self.presets[confs['preset']]['width']
+                height = self.presets[confs['preset']]['height']
+                unit = self.presets[confs['preset']]['unit']
                 self.calculate_pixel_size(width, height, unit)
             else:
                 print("unknown preset.")
@@ -51,7 +52,7 @@ class Bacardi():
             unit = confs['size']['unit']
             self.calculate_pixel_size(width, height, unit)
         else:
-            print("parameter 'size' should be the name of a preset or a dict with parameters width, height and unit")
+            print("parameter 'size' should be a dict with parameters width, height and unit, or send the name of a preset")
             return
         self.width_square = ceil(self.width/self.grid_width)
         self.height_square = ceil(self.height/self.grid_height)
