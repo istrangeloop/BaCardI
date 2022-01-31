@@ -45,6 +45,8 @@ class LayoutRequest(BaseModel):
     preset: Optional[str] = None
     layout: List[Layout] = []
 
+class CardsRequest(LayoutRequest):
+    cards: list = []
 
 @app.get("/")
 def root():
@@ -77,21 +79,25 @@ def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest):
 
 @app.post("/create")
 def create_cards(background_tasks: BackgroundTasks, 
-                layout: LayoutRequest, 
-                cardinfo):
-    # TODO: create unique name for each temporary folder then
-    # delete them after processing the request
-    services.setup_dirs()
-    path = services.upload(image)
-    l_path = services.upload(layout)
+                cards: CardsRequest):
+    print(cards)
+    return 200
+'''
+    for el in cards.layout:
+        if el.default != None:
+            filename = services.upload_image(el.default)
+            el.default = filename
+    json_layout = jsonable_encoder(cards.layout)
+
     c_path = services.upload(cardinfo)
     if path is None:
         return fastapi.HTTPException(status_code=409, detail="incorrect file type")
 
     services.extract_images(path)
-    services.process(l_path, c_path)
+    services.process(json_layout, c_path)
     deck = services.zip_deck()
     background_tasks.add_task(services.destroy_dirs)
     return responses.Response(deck.getvalue(), media_type="application/x-zip-compressed", headers={
         'Content-Disposition': f'attachment;filename=generated_deck.zip'
     })
+    '''

@@ -37,8 +37,7 @@ class Bacardi():
         except:
             print("please define the card grid.")
         
-        if('preset' in confs):
-            print(self.presets[confs['preset']])
+        if('preset' in confs and confs['preset'] is not None):
             if(confs['preset'] in self.presets):
                 width = self.presets[confs['preset']]['width']
                 height = self.presets[confs['preset']]['height']
