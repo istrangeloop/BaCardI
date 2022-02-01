@@ -19,7 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class Layout(BaseModel):
     type: str
     name: str
@@ -52,15 +51,14 @@ class CardsRequest(LayoutRequest):
 def root():
     return {"message": "Hi :) you are using the BaCardI API version 1.0 created by Ingrid Spangler"}
 
-
-@app.post("/junk")
-async def test(layout: LayoutRequest):
-    services.setup_dirs()
-    # lista de enderecos das imagens registradas
-    # equivalente a services.upload(images)
-    # porem para N imagens
-    image_list = (services.upload_image(images.default) for images in layout.layout)
-    return image_list
+# @app.post("/junk")
+# async def test(layout: LayoutRequest):
+#     services.setup_dirs()
+#     # lista de enderecos das imagens registradas
+#     # equivalente a services.upload(images)
+#     # porem para N imagens
+#     image_list = (services.upload_image(images.default) for images in layout.layout)
+#     return image_list
 
 
 @app.post("/layout")
@@ -80,24 +78,24 @@ def create_layout(background_tasks: BackgroundTasks, layout: LayoutRequest):
 @app.post("/create")
 def create_cards(background_tasks: BackgroundTasks, 
                 cards: CardsRequest):
-    print(cards)
-    return 200
-'''
+    services.setup_dirs()
     for el in cards.layout:
         if el.default != None:
             filename = services.upload_image(el.default)
             el.default = filename
-    json_layout = jsonable_encoder(cards.layout)
 
-    c_path = services.upload(cardinfo)
-    if path is None:
-        return fastapi.HTTPException(status_code=409, detail="incorrect file type")
+    for el in cards.layout:
+        if(el.type == 'image'):
+            for card in cards.cards:
+                filename = services.upload_image(bytes(card[el.name], 'UTF-8'))
+                if filename is None:
+                    return fastapi.HTTPException(status_code=409, detail="incorrect file type")
 
-    services.extract_images(path)
-    services.process(json_layout, c_path)
+                card[el.name] = filename
+    json_cards = jsonable_encoder(cards)
+    services.process(json_cards)
     deck = services.zip_deck()
     background_tasks.add_task(services.destroy_dirs)
     return responses.Response(deck.getvalue(), media_type="application/x-zip-compressed", headers={
         'Content-Disposition': f'attachment;filename=generated_deck.zip'
     })
-    '''

@@ -26,8 +26,7 @@ class Bacardi():
         self.presets = yaml.safe_load(pf)
         
     def load_config(self, CONFIG_FILE):
-#        pf = open(CONFIG_FILE, 'r')
-#        confs = yaml.safe_load(pf)
+
         confs = CONFIG_FILE
         self.layout = confs['layout']
 
@@ -62,8 +61,6 @@ class Bacardi():
             self.mode = PREVIEW
         else:
             self.cards = CARDS_FILE
-            # pf = open(CARDS_FILE, 'r')
-            # self.cards = yaml.safe_load(pf)
 
     def calculate_pixel_size(self, width, height, unit):
         # produces an image with 300 dpi given dimensions and units

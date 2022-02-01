@@ -51,8 +51,8 @@ def extract_images(file_name: str) -> None:
         zip.extractall(path=IMAGE_DIR)
 
 
-def process(layout: str, cards: str):
-    b = bacardi.Bacardi(layout, cards, IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
+def process(cards: str):
+    b = bacardi.Bacardi(cards, cards['cards'], IMAGE_DIR=IMAGE_DIR, OUTPUT_DIR=OUTPUT_DIR)
     b.run()
 
 
