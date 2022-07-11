@@ -20,6 +20,7 @@ layout:
     start: C11
     end: G9
     level: 3
+    color: "black"
 
   - name: Ilustra
     type: image
@@ -63,10 +64,12 @@ It is a [YAML](https://docs.ansible.com/ansible/latest/reference_appendices/YAML
   - name: the name under which it will be locared at the cards file (see more below)
   - type: wheter it's an image or a text
   - start and end: where in the design it is located (see grid details below)
-  - level: things often go atop of each other. Write here the order the elements will be rendered. For example: 0 is the lowest level (for the background) and will be rendered first, then levels 1-beyond will be pasted on top of it. This is not really fixed, you can write any number, there can be however many levels you want.
-  - scale: for text, it changes the size of the font, a value of scale = 1 equals one whole square per default. Then you do the math.
+  - level: Write here the order the elements will be rendered. For example: 0 is the lowest level (for the background) and will be rendered first, then levels 1-beyond will be pasted on top of it. This is not really fixed, you can write any number, there can be however many levels you want.
   - default: if this is something in the design that is present in every card, you can just set the value here and not bother writing it in the cards file. If there is a value in the cards file, it will overwrite this default.
-- **size**: it can be the name of one of the presets defined in `presets.yaml`, like 'poker', 'mini' or 'tarot', or a list with the card dimensions in milimiters (mm), inches (in), or pixels (px).
+  - **Text-only options**:
+    - scale: for text, it changes the size of the font, a value of scale = 1 equals one whole square per default. Then you do the math.
+    - color: the font color
+- **size**: The size of the actual image itself, on 300dpi. It can be the name of one of the presets defined in `presets.yaml`, like 'poker', 'mini' or 'tarot', or a list with the card dimensions in milimiters (mm), inches (in), or pixels (px).
 - **grid**: this is an important element and where the design happens. Basically, the number of squares you will need to divide the card to replicate your design.
 
 ### Example layout:
@@ -108,12 +111,12 @@ layout:
 
 size: 
   width: 600
-  heigth: 1000
+  height: 1000
   unit: px
 
 grid:
   width: 9
-  heigth: 15
+  height: 15
 ```
 
 ## The Grid
@@ -130,23 +133,21 @@ This is the file in which you will add and modify your cards one by one. It look
 ```
 - Titulo: "Grifinória"
   Ilustra: Gryffindor.png
-  Description: "A casa dos\n Corajosos"
+  Description: "A casa dos Corajosos"
 
 - Titulo: "Corvinal"
   Ilustra: Ravenclaw.png
-  Description: "A casa dos\n Sábios"
+  Description: "A casa dos Sábios"
 
 - Titulo: "Lufa-Lufa"
   Ilustra: Hufflepuff.png
-  Description: "A casa dos\n Honestos"
+  Description: "A casa dos Honestos"
 
 - Titulo: "Sonserina"
   Ilustra: Slytherin.png
-  Description: "A casa dos\n Ardilosos"
+  Description: "A casa dos Ardilosos"
 ```
 You can see it is really simple. It uses the names defined in the configuration file above and sets the value for them in each card. Any of the values anywhere can also be empty if you write the keyword Null. Values that were set as default in the config file will be overrided if something else is set instead under the corresponding keyword.
-
-Quick note: Text is not something that obeys boundaries very nicely, so probably you will have to write text breaks yourself for now. To break a text, just insert a '\n' in the desired location.
 
 The result:
 

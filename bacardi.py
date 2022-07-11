@@ -4,7 +4,8 @@ import yaml
 import json
 from PIL import Image, ImageDraw, ImageFont
 from math import ceil
-
+from string import ascii_letters
+import textwrap
 
 PRESET_FILE = os.path.join("util", "presets.yaml")
 ASSEMBLE = 0
@@ -26,8 +27,8 @@ class Bacardi():
         self.presets = yaml.safe_load(pf)
         
     def load_config(self, CONFIG_FILE):
-
-        confs = CONFIG_FILE
+        confs_r = open(CONFIG_FILE, 'r')
+        confs = yaml.safe_load(confs_r)
         self.layout = confs['layout']
 
         try:
@@ -60,7 +61,8 @@ class Bacardi():
         if CARDS_FILE == None:
             self.mode = PREVIEW
         else:
-            self.cards = CARDS_FILE
+            pf = open(CARDS_FILE, 'r')
+            self.cards = yaml.safe_load(pf)
 
     def calculate_pixel_size(self, width, height, unit):
         # produces an image with 300 dpi given dimensions and units
@@ -136,12 +138,22 @@ class Bacardi():
             
             elif(part_conf["type"] == "text"):
                 text = ImageDraw.Draw(card)
+
                 if("scale" in part_conf):
                     scale = part_conf["scale"]
                 else:
                     scale = 1
+
+                if("color" in part_conf):
+                    color = part_conf["color"]
+                else:
+                    color = "black"
+
                 fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
-                text.multiline_text((self.square_to_pixels(part_conf["start"])), part_conf["name"], font=fnt, fill=(0, 0, 0))
+                avg_char_width = sum(fnt.getsize(char)[0] for char in ascii_letters) / len(ascii_letters)
+                max_char_count = int(self.square_to_pixels(part_conf["end"] - self.square_to_pixels(part_conf["start"]) * .95) / avg_char_width )
+                content = textwrap.fill(text=part_conf["name"], width=max_char_count)
+                text.multiline_text((self.square_to_pixels(part_conf["start"])), content, font=fnt, fill=color)
 
         return card
     
@@ -149,6 +161,7 @@ class Bacardi():
         card = Image.new('RGBA', (self.width, self.height), (255,255,255,255))
         part = self.get_next_piece_of_layout()
         #verify if it exists else use default value
+        
         for part_conf in part:
             if(part_conf["name"] in obj):
                 value = obj[part_conf["name"]]
@@ -184,8 +197,17 @@ class Bacardi():
                         scale = part_conf["scale"]
                     else:
                         scale = 1
+                    if("color" in obj):
+                        color = obj["color"]
+                    elif("color" in part_conf):
+                        color = part_conf["color"]
+                    else:
+                        color = "black"
                     fnt = ImageFont.truetype(os.path.join("util", "Font", "arial.ttf"), size=ceil(self.width/self.grid_width * scale))
-                    text.multiline_text((self.square_to_pixels(part_conf["start"])), value, font=fnt, fill=(0, 0, 0))
+                    avg_char_width = sum(fnt.getsize(char)[0] for char in ascii_letters) / len(ascii_letters)
+                    max_char_count = int((self.square_to_pixels(part_conf["end"])[0] - self.square_to_pixels(part_conf["start"])[0]) / avg_char_width )
+                    content = textwrap.fill(text=value, width=max_char_count)
+                    text.multiline_text((self.square_to_pixels(part_conf["start"])), content, font=fnt, fill=color)
 
         return card
 
