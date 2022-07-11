@@ -168,7 +168,8 @@ class Bacardi():
             elif 'default' in part_conf:
                 value = part_conf["default"]
             else:
-                print("there must be a value or default for ", part_conf["name"])
+                print("Skipping:  ", part_conf["name"])
+                pass
             
             # Value can be null
             if(value != None):
